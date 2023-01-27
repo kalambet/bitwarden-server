@@ -46,7 +46,7 @@ jobs:
         shell: pwsh
 
       - name: Test OSS solution
-        run: dotnet test ./test/Identity.IntegrationTest --configuration Debug --no-build --logger "trx;LogFileName=oss-test-results.trx" --verbosity diag
+        run: dotnet test ./test/Identity.IntegrationTest --no-build --verbosity d
         shell: pwsh
 
       - name: Report test results
