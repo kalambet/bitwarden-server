@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Bit.IntegrationTestCommon.Factories;
 
@@ -112,6 +113,14 @@ public abstract class WebApplicationFactoryBase<T> : WebApplicationFactory<T>
             // Disable logs
             //services.AddSingleton<ILoggerFactory, NullLoggerFactory>();
         });
+    }
+
+    // https://www.strathweb.com/2021/05/the-curious-case-of-asp-net-core-integration-test-deadlock/
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        var host = builder.Build();
+        Task.Run(() => host.StartAsync()).GetAwaiter().GetResult();
+        return host;
     }
 
     public DatabaseContext GetDatabaseContext()
