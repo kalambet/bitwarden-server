@@ -46,7 +46,7 @@ jobs:
         shell: pwsh
 
       - name: Test OSS solution
-        run: dotnet test ./test/Identity.IntegrationTest --no-build --verbosity d  -- xunit.parallelizeTestCollections=false
+        run: dotnet test ./test/Identity.IntegrationTest --no-build --verbosity d  -- xunit.maxParallelThreads=8
         shell: pwsh
 
       - name: Report test results
