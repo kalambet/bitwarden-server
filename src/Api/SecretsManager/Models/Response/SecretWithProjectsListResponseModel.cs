@@ -9,26 +9,26 @@ public class SecretWithProjectsListResponseModel : ResponseModel
 
     public SecretWithProjectsListResponseModel(IEnumerable<Secret> secrets) : base(_objectName)
     {
-        Secrets = secrets.Select(s => new InnerSecret(s));
-        Projects = secrets.SelectMany(s => s.Projects).DistinctBy(p => p.Id).Select(p => new InnerProject(p));
+        Secrets = secrets.Select(s => new InnerSecret2(s));
+        Projects = secrets.SelectMany(s => s.Projects).DistinctBy(p => p.Id).Select(p => new InnerProject2(p));
     }
 
     public SecretWithProjectsListResponseModel() : base(_objectName)
     {
     }
 
-    public IEnumerable<InnerSecret> Secrets { get; set; }
-    public IEnumerable<InnerProject> Projects { get; set; }
+    public IEnumerable<InnerSecret2> Secrets { get; set; }
+    public IEnumerable<InnerProject2> Projects { get; set; }
 
-    public class InnerProject
+    public class InnerProject2
     {
-        public InnerProject(Project project)
+        public InnerProject2(Project project)
         {
             Id = project.Id;
             Name = project.Name;
         }
 
-        public InnerProject()
+        public InnerProject2()
         {
         }
 
@@ -36,19 +36,19 @@ public class SecretWithProjectsListResponseModel : ResponseModel
         public string Name { get; set; }
     }
 
-    public class InnerSecret
+    public class InnerSecret2
     {
-        public InnerSecret(Secret secret)
+        public InnerSecret2(Secret secret)
         {
             Id = secret.Id.ToString();
             OrganizationId = secret.OrganizationId.ToString();
             Key = secret.Key;
             CreationDate = secret.CreationDate;
             RevisionDate = secret.RevisionDate;
-            Projects = secret.Projects?.Select(p => new InnerProject(p));
+            Projects = secret.Projects?.Select(p => new InnerProject2(p));
         }
 
-        public InnerSecret()
+        public InnerSecret2()
         {
         }
 
@@ -62,7 +62,7 @@ public class SecretWithProjectsListResponseModel : ResponseModel
 
         public DateTime RevisionDate { get; set; }
 
-        public IEnumerable<InnerProject> Projects { get; set; }
+        public IEnumerable<InnerProject2> Projects { get; set; }
     }
 }
 

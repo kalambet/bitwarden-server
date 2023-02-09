@@ -1,13 +1,12 @@
 ﻿using System.Text.Json;
 using Bit.Core.Entities;
-using Bit.Core.Enums;
 
 namespace Bit.Api.Models.Request;
 
 public class UpdateDomainsRequestModel
 {
     public IEnumerable<IEnumerable<string>> EquivalentDomains { get; set; }
-    public IEnumerable<GlobalEquivalentDomainsType> ExcludedGlobalEquivalentDomains { get; set; }
+    public IEnumerable<int> ExcludedGlobalEquivalentDomains { get; set; }
 
     public User ToUser(User existingUser)
     {
