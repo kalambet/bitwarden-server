@@ -10,6 +10,7 @@ using Bit.Core.Identity;
 using Bit.Core.Models;
 using Bit.Core.Models.Api;
 using Bit.Core.Models.Data.Organizations;
+using Bit.Core.Models.Data.Organizations.Policies;
 using Bit.Core.Repositories;
 using Bit.Core.Services;
 using Bit.Core.Settings;
@@ -183,6 +184,7 @@ public abstract class BaseRequestValidator<T> where T : class
             customResponse.Add("Key", user.Key);
         }
 
+        customResponse.Add("EnforceMasterPasswordPolicyOnLogin", await EnforceMasterPasswordPolicyOnLogin(user));
         customResponse.Add("ForcePasswordReset", user.ForcePasswordReset);
         customResponse.Add("ResetMasterPassword", string.IsNullOrWhiteSpace(user.MasterPassword));
         customResponse.Add("Kdf", (byte)user.Kdf);
@@ -617,5 +619,28 @@ public abstract class BaseRequestValidator<T> where T : class
         var failedLoginCeiling = _globalSettings.Captcha.MaximumFailedLoginAttempts;
         var failedLoginCount = user?.FailedLoginCount ?? 0;
         return unknownDevice && failedLoginCeiling > 0 && failedLoginCount == failedLoginCeiling;
+    }
+
+    private async Task<bool> EnforceMasterPasswordPolicyOnLogin(User user)
+    {
+        var orgs = (await _currentContext.OrganizationMembershipAsync(_organizationUserRepository, user.Id))
+            .ToList();
+        
+        if (!orgs.Any())
+        {
+            return false;
+        }
+
+        // Check for any enabled MasterPassword policies, with EnforceOnLogin enabled
+        return (await _policyRepository.GetManyByUserIdAsync(user.Id))
+            .Any(p =>
+                p.Type == PolicyType.MasterPassword &&
+                p.Enabled &&
+                p.GetDataModel<MasterPasswordPolicyData>().EnforceOnLogin &&
+                !orgs.Exists(o => // Don't enforce on Owners/Admins or w/ ManagePolicies
+                    o.Id == p.OrganizationId &&
+                    (o.Type < OrganizationUserType.User || o.Permissions.ManagePolicies)
+                )
+            );
     }
 }
